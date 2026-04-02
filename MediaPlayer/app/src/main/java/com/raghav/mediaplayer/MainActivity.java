@@ -1,6 +1,7 @@
 package com.raghav.mediaplayer;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -24,9 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<String> filePicker =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri != null) {
-                    loadAudio(uri);
-                }
+                if (uri != null) loadAudio(uri);
             });
 
     private final ActivityResultLauncher<String> permissionRequest =
@@ -48,19 +47,19 @@ public class MainActivity extends AppCompatActivity {
         btnPause = findViewById(R.id.btnPause);
         btnStop = findViewById(R.id.btnStop);
         btnRestart = findViewById(R.id.btnRestart);
+
         MaterialButton btnOpenFile = findViewById(R.id.btnOpenFile);
+        MaterialButton btnOpenVideo = findViewById(R.id.btnOpenVideo);
 
         btnOpenFile.setOnClickListener(v -> openFile());
+        btnOpenVideo.setOnClickListener(v -> startActivity(new Intent(this, VideoActivity.class)));
+
         btnPlay.setOnClickListener(v -> mediaPlayer.start());
         btnPause.setOnClickListener(v -> mediaPlayer.pause());
 
         btnStop.setOnClickListener(v -> {
             mediaPlayer.stop();
-            try {
-                mediaPlayer.prepare();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            try { mediaPlayer.prepare(); } catch (Exception ignored) {}
         });
 
         btnRestart.setOnClickListener(v -> {
@@ -82,9 +81,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadAudio(Uri uri) {
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-        }
+        if (mediaPlayer != null) mediaPlayer.release();
 
         mediaPlayer = new MediaPlayer();
         try {
@@ -100,15 +97,10 @@ public class MainActivity extends AppCompatActivity {
             btnRestart.setEnabled(true);
 
             mediaPlayer.setOnCompletionListener(mp -> {
-                try {
-                    mp.prepare();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                try { mp.prepare(); } catch (Exception ignored) {}
             });
         } catch (Exception e) {
             Toast.makeText(this, "Could not load the file", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
         }
     }
 
